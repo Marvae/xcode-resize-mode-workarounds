@@ -88,3 +88,24 @@ ad-hoc codesign
 install patched .app with Xcode 27 devicectl
 launch
 ```
+
+## Host ScreenSharingKit resize ABI check
+
+The physical-device Screen Mirroring path appears to require newer `ScreenSharingKit` symbols than older macOS runtimes export. Use the helper below to compare the host runtime against the Xcode 27 macOS SDK stub:
+
+```bash
+./tools/check-screen-sharing-resize-abi.sh
+```
+
+A host that can run the newer Screen Mirroring resize path should report `runtime=1` for symbols such as:
+
+```text
+CanvasSizes.allowsResizability
+Capabilities.universalResizability
+MirroringSession.liveResizeInProgress
+MirroringSession.sceneSizeChangedPublisher
+MirroringSession.isResizableStatusPublisher
+MirroringSessionState.videoContentSizeChanged
+```
+
+If those are `runtime=0` but `sdk=1`, the SDK advertises the API but the current OS runtime cannot execute it.
